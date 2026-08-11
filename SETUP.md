@@ -210,12 +210,49 @@ If GET returns 404 for an automation that clearly exists, it is defined in a
 package or an `!include`d file rather than in automations.yaml. This endpoint
 only manages automations.yaml — edit those as files instead.
 
+## Managing helpers
+Helpers (input_boolean, input_number, counter, timer, input_text, ...) live in
+.storage, NOT in YAML. Never edit those files directly — HA holds them in memory
+and will clobber your changes. Use the WebSocket API instead:
+
+- List:   {"type": "input_boolean/list"}
+- Create: {"type": "input_boolean/create", "name": "My Helper"}
+- Delete: {"type": "input_boolean/delete", "input_boolean_id": "<id>"}
+
+The same verb pattern works for counter/*, input_number/*, timer/*, and the
+other helper domains. `<id>` comes from the list command, and is not the
+entity_id.
+
+## Renaming entities
+Use the entity registry over WebSocket, never a file edit:
+
+{"type": "config/entity_registry/update", "entity_id": "<current>",
+ "name": "New Display Name", "new_entity_id": "<new_entity_id>"}
+
+Both fields are optional; send either or both. Note this sets a registry-level
+display-name override — a helper's own configured name is separate and will
+still show the old value in that helper's list command.
+
+## Dashboards
+Lovelace dashboards stored in .storage can be edited, but the changes do not
+appear until Home Assistant restarts. Warn the user before doing that.
+
 ## Rules
 1. Use the config API above rather than hand-editing automations.yaml
-2. Run a config check before reloading anything
-3. Prefer a targeted reload over restarting HA core
-4. Say what you changed and why
+2. Never raw-edit anything under .storage — use the WebSocket APIs
+3. Run a config check before reloading anything
+4. Prefer a targeted reload over restarting HA core
+5. Say what you changed and why
 ```
+
+**Verified.** The automation, helper and entity-registry mechanisms above were
+each tested end to end against a live Home Assistant instance (create → read →
+edit → delete → confirm gone). The Lovelace restart note reflects operational
+experience rather than a test in this repo.
+
+Things that still need a human, whatever the instructions say: OAuth-based
+integration setup (browser login), pairing flows needing a physical button press,
+and QR-code scans.
 
 That "Managing automations" block is the difference between an agent that can
 turn your lights on and one that can write you a new automation. Without it the

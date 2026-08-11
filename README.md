@@ -27,7 +27,7 @@ Bot:  The automation fired at 21:04 but the condition blocked it — sun elevati
 - **Media** — photos, documents, and voice messages are downloaded locally and handed to the agent as a file path, so it can actually look at them
 - **Allowlist auth** — only the Telegram user IDs you list are ever dispatched to Claude
 - **MCP inheritance** — picks up the Home Assistant MCP servers already configured for Claude Code on that machine
-- **Real automation editing** — with the standing instructions from [SETUP.md](SETUP.md), the agent creates, edits and deletes automations through HA's REST config API, not just `call_service`
+- **Real write access** — with the standing instructions from [SETUP.md](SETUP.md), the agent creates, edits and deletes automations (REST config API) and helpers, and renames entities (WebSocket APIs), rather than only calling services. Each of those was verified end to end against a live instance.
 
 ## Requirements
 
