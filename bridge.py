@@ -96,6 +96,7 @@ REAPER_INTERVAL = 60
 
 API = f"https://api.telegram.org/bot{BOT_TOKEN}"
 TELEGRAM_MSG_LIMIT = 4000  # hard limit is 4096; leave headroom
+LOG_FORMAT = "%(asctime)s %(levelname)s %(name)s: %(message)s"
 
 SYSTEM_APPEND = (
     "You are being driven from a phone via Telegram. Keep responses concise and "
@@ -416,12 +417,20 @@ class ChatSession:
 async def main() -> None:
     logging.basicConfig(
         level=os.environ.get("LOG_LEVEL", "INFO"),
-        format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+        format=LOG_FORMAT,
     )
-    # httpx logs the full request URL at INFO, and the bot token is part of
-    # every Telegram URL -- that would write the credential into the journal
-    # in plaintext on every poll. Only raise this if you are debugging, and
-    # remember what it exposes.
+    # The bot token is part of every Telegram URL, so anything that logs a URL
+    # logs the credential. Quieting the httpx logger is not sufficient on its
+    # own: an httpx.HTTPStatusError carries the URL in its message, so a single
+    # transient 409/5xx reaching `exc_info=True` would print it anyway. Scrub at
+    # the formatter, which every handler and every traceback passes through.
+    class _RedactToken(logging.Formatter):
+        def format(self, record: logging.LogRecord) -> str:
+            return super().format(record).replace(BOT_TOKEN, "<bot-token-redacted>")
+
+    for handler in logging.getLogger().handlers:
+        handler.setFormatter(_RedactToken(LOG_FORMAT))
+
     logging.getLogger("httpx").setLevel(
         os.environ.get("BRIDGE_HTTPX_LOG_LEVEL", "WARNING")
     )
@@ -489,6 +498,13 @@ async def main() -> None:
                 msg.get("message_thread_id") if msg.get("is_topic_message") else None
             )
             key = (chat_id, thread_id or 0)
+            # Without this the journal is silent during normal operation, and
+            # "is it even receiving my messages?" becomes unanswerable. Length
+            # only -- message content does not belong in the system log.
+            log.info(
+                "accepted message from user %s -> tab %s:%s (%d chars)",
+                user_id, chat_id, thread_id or 0, len(text),
+            )
 
             session = sessions.get(key)
             if session is None:

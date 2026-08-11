@@ -85,11 +85,13 @@ apt install -y nodejs
 node --version    # expect v22.x or newer
 ```
 
-Then the CLI itself, which the Agent SDK drives under the hood:
+Then the CLI itself:
 
 ```bash
 npm install -g @anthropic-ai/claude-code
 ```
+
+Worth knowing what this is and isn't for. The Agent SDK ships its own bundled copy of the CLI and will use that at runtime, not this one — you'll see `Using bundled Claude Code CLI` in the logs. You still want the global install, because `claude setup-token` and an interactive `claude` login (step 6) come from it. Node 22+ is required either way, since the bundled copy runs on your Node.
 
 ---
 
