@@ -114,6 +114,7 @@ This gives a language model shell access to the machine running your home automa
 - **Keep it on a private network.** Nothing here needs a public route; the bridge polls Telegram outbound.
 - **`.env` holds your bot token and your Claude credential.** `chmod 600`, and it's already in `.gitignore`.
 - **Anyone who can message the bot can reach your HA.** Telegram account security is now part of your home's security.
+- **Don't raise the `httpx` log level.** The bot token is part of every Telegram URL, so `httpx` at `INFO` writes your credential into the journal on every poll. The bridge pins it to `WARNING` for that reason; `BRIDGE_HTTPX_LOG_LEVEL` can override it if you are debugging and understand the exposure.
 
 ## License
 

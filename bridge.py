@@ -418,6 +418,13 @@ async def main() -> None:
         level=os.environ.get("LOG_LEVEL", "INFO"),
         format="%(asctime)s %(levelname)s %(name)s: %(message)s",
     )
+    # httpx logs the full request URL at INFO, and the bot token is part of
+    # every Telegram URL -- that would write the credential into the journal
+    # in plaintext on every poll. Only raise this if you are debugging, and
+    # remember what it exposes.
+    logging.getLogger("httpx").setLevel(
+        os.environ.get("BRIDGE_HTTPX_LOG_LEVEL", "WARNING")
+    )
     tg = Telegram()
     state = load_state()
     turn_sem = asyncio.Semaphore(MAX_CONCURRENT)
