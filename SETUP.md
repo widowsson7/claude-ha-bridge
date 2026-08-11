@@ -190,16 +190,37 @@ A `CLAUDE.md` in your workdir tells the agent how your setup works, so you don't
 # Home Assistant agent instructions
 
 ## Access
-- HA host: 10.0.0.10, SSH as root with the bridge's dedicated key
-- Config lives in /config, tracked in git
+- HA host: 10.0.0.10
 - Timezone: America/Phoenix (no DST)
 
+## Managing automations
+Create, edit and delete automations through the REST config API, using the same
+long-lived token as the MCP server. `<id>` is the automation's numeric `id`
+attribute, NOT its entity_id.
+
+- Read:    GET    /api/config/automation/config/<id>
+- Create:  POST   /api/config/automation/config/<id>   (body = the automation)
+- Edit:    POST   /api/config/automation/config/<id>   (same endpoint, replaces)
+- Delete:  DELETE /api/config/automation/config/<id>
+
+After any change, call the `automation.reload` service. New or removed entities
+only appear or disappear after that reload.
+
+If GET returns 404 for an automation that clearly exists, it is defined in a
+package or an `!include`d file rather than in automations.yaml. This endpoint
+only manages automations.yaml — edit those as files instead.
+
 ## Rules
-1. Edit YAML files, not the UI database, so changes are reviewable
+1. Use the config API above rather than hand-editing automations.yaml
 2. Run a config check before reloading anything
 3. Prefer a targeted reload over restarting HA core
 4. Say what you changed and why
 ```
+
+That "Managing automations" block is the difference between an agent that can
+turn your lights on and one that can write you a new automation. Without it the
+agent has the access but not the recipe, and will usually tell you it can only
+call services.
 
 ---
 
