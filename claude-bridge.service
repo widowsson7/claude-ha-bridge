@@ -1,0 +1,27 @@
+[Unit]
+Description=Claude Bridge - Telegram Home Assistant agent
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/claude-bridge
+EnvironmentFile=/opt/claude-bridge/.env
+# systemd does not reliably set HOME. Without it the Claude CLI cannot find
+# its stored credentials and every turn fails with "Not logged in".
+Environment=HOME=/root
+ExecStart=/opt/claude-bridge/venv/bin/python bridge.py
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=claude-bridge
+
+# Resource controls. MemoryHigh throttles, MemoryMax kills. A killed turn is
+# recoverable: the next message reconnects and resumes from the saved session id.
+MemoryHigh=2560M
+MemoryMax=2816M
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,2 @@
+claude-agent-sdk==0.2.128
+httpx==0.28.1

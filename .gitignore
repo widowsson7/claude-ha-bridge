@@ -1,0 +1,16 @@
+# Secrets
+.env
+
+# Runtime state
+state.json
+media/
+
+# Python
+venv/
+__pycache__/
+*.py[cod]
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
