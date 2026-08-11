@@ -153,22 +153,32 @@ If you later want to revoke the agent's access, you delete one key from one `aut
 
 The bridge inherits MCP configuration from Claude Code on this machine (`setting_sources=["user", "project", "local"]`), so an `.mcp.json` in your `CLAUDE_WORKDIR` is picked up automatically.
 
+Install a Home Assistant MCP server. [`ha-mcp`](https://www.npmjs.com/package/ha-mcp) is the one this project is developed against:
+
+```bash
+npm install -g ha-mcp
+```
+
+Then write `.mcp.json` into your `CLAUDE_WORKDIR`:
+
 ```json
 {
   "mcpServers": {
     "homeassistant": {
-      "command": "npx",
-      "args": ["-y", "homeassistant-mcp"],
+      "command": "ha-mcp",
+      "args": [],
       "env": {
-        "HA_URL": "http://10.0.0.10:8123",
-        "HA_TOKEN": "your_long_lived_token_here"
+        "HA_MCP_TOKEN": "your_long_lived_token_here",
+        "HA_MCP_URL": "http://10.0.0.10:8123"
       }
     }
   }
 }
 ```
 
-Substitute whichever HA MCP server you prefer. Keep the token out of git.
+Any other HA MCP server works too, but read its own docs for the command and environment variable names — they differ between implementations, and getting them wrong fails quietly with the tools simply absent rather than with an error.
+
+Keep this file out of git: it holds a token that can control your house.
 
 ### Standing instructions
 
