@@ -41,6 +41,29 @@ from claude_agent_sdk import (
 
 log = logging.getLogger("claude-bridge")
 
+
+def _load_dotenv() -> None:
+    """Load a .env sitting next to this file, without overriding the real env.
+
+    systemd supplies these through EnvironmentFile=, so this is a no-op under
+    the service. It exists so that running `python bridge.py` by hand works
+    instead of dying on the first os.environ[...] lookup below.
+    """
+    path = Path(__file__).with_name(".env")
+    try:
+        lines = path.read_text().splitlines()
+    except OSError:
+        return
+    for line in lines:
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, _, value = line.partition("=")
+        os.environ.setdefault(key.strip(), value.strip())
+
+
+_load_dotenv()
+
 BOT_TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
 ALLOWED_USER_IDS = {
     int(x) for x in os.environ["TELEGRAM_ALLOWED_USER_IDS"].split(",") if x.strip()

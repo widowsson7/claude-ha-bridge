@@ -74,11 +74,22 @@ Inside the container (`pct exec 210 -- bash`, or SSH in):
 
 ```bash
 apt update
-apt install -y git python3 python3-venv python3-pip curl openssh-client nodejs npm
-npm install -g @anthropic-ai/claude-code
+apt install -y git curl python3 python3-venv python3-pip openssh-client
 ```
 
-The Claude Code CLI is required: the Agent SDK drives it under the hood.
+Now Node. **Do not use Debian's `nodejs` package** — it is version 18, and the Claude Code CLI requires 22 or newer. Installing on 18 appears to succeed while emitting an `EBADENGINE` warning, then fails later in ways that are hard to trace back:
+
+```bash
+curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
+apt install -y nodejs
+node --version    # expect v22.x or newer
+```
+
+Then the CLI itself, which the Agent SDK drives under the hood:
+
+```bash
+npm install -g @anthropic-ai/claude-code
+```
 
 ---
 
@@ -104,7 +115,11 @@ nano .env
 
 At minimum set `TELEGRAM_BOT_TOKEN`, `TELEGRAM_ALLOWED_USER_IDS`, and `CLAUDE_WORKDIR`.
 
-`CLAUDE_WORKDIR` should point at whatever you want the agent working in — a git checkout of your HA config is a good choice, because then every change the agent makes is reviewable and revertable.
+`CLAUDE_WORKDIR` should point at whatever you want the agent working in — a git checkout of your HA config is a good choice, because then every change the agent makes is reviewable and revertable. **The directory has to exist already**; create it now if it doesn't:
+
+```bash
+mkdir -p /root/ha-config     # or wherever you pointed CLAUDE_WORKDIR
+```
 
 **Authenticate Claude.** Three options, pick one:
 
@@ -268,6 +283,8 @@ Back up `.env` (encrypted) and `state.json`. Losing `state.json` costs you conve
 | Replies in DMs but not the group | Privacy mode still on | @BotFather → `/setprivacy` → Disable, then remove and re-add the bot |
 | Each topic shares one conversation | Topics not enabled, or bot isn't admin | Enable Topics in group settings; promote the bot |
 | Every turn returns `Not logged in · Please run /login` | No credential reached the process | Set `CLAUDE_CODE_OAUTH_TOKEN` or `ANTHROPIC_API_KEY` in `.env`, or ensure `HOME` is set in the unit so an interactive login is found |
+| `npm` warned `EBADENGINE`, CLI behaves oddly | Node 18 from Debian's repo | Install Node 22+ from NodeSource (step 4); `preflight.py` flags this |
+| Value set in `.env` seems ignored | The line is still commented out | The auth block in `.env.example` ships commented; uncomment the line you use |
 | `--dangerously-skip-permissions cannot be used with root` | `bypassPermissions` as root | Use `acceptEdits`, or run the service as a non-root user |
 | `Error: ... Retrying will resume` | Turn crashed, client dropped | Just send another message; it reconnects and resumes |
 | Agent can't read a file | Path outside the sandbox boundary | Add it to `CLAUDE_ADD_DIRS`. A `permissions.allow` rule alone does **not** extend the boundary |

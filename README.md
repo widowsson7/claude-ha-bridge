@@ -32,6 +32,7 @@ Bot:  The automation fired at 21:04 but the condition blocked it — sun elevati
 
 - An always-on Linux box (LXC container, VM, Raspberry Pi, whatever) that can reach Telegram, the Anthropic API, and your HA instance
 - Python 3.11+
+- Node 22+ (for the Claude Code CLI, which the Agent SDK drives). Note that Debian 12's `nodejs` package is version 18 and is **too old** — use [NodeSource](https://github.com/nodesource/distributions)
 - A Claude subscription or an Anthropic API key
 - A Telegram bot token from [@BotFather](https://t.me/BotFather)
 
@@ -57,12 +58,13 @@ Full walkthrough including container setup, MCP configuration, and SSH keys: **[
 
 You can hand this repo to Claude Code and have it do the install. [CLAUDE.md](CLAUDE.md) contains instructions written for the agent rather than for you.
 
-**Have these four things ready first** — an agent cannot obtain them, and it will stall without them:
+**Have these five things ready first** — an agent cannot obtain them, and it will stall without them:
 
 1. A **Telegram bot token** from [@BotFather](https://t.me/BotFather) (`/newbot`)
 2. Your **numeric Telegram user ID** from [@userinfobot](https://t.me/userinfobot)
 3. **Claude auth**: run `claude setup-token`, or have an `ANTHROPIC_API_KEY`
-4. Optionally, a **Home Assistant long-lived token** (Profile → Security)
+4. **Which directory** the agent should work in — ideally a git checkout of your HA config
+5. Optionally, a **Home Assistant long-lived token** (Profile → Security)
 
 Then point an agent at it:
 
@@ -90,6 +92,8 @@ Every setting is an environment variable; see [.env.example](.env.example) for t
 | `BRIDGE_MAX_CONCURRENT` | `2` | Max simultaneous Claude turns |
 | `BRIDGE_SHOW_TOOLS` | `0` | `1` to echo each tool call into Telegram |
 | `MEDIA_DIR` | `/opt/claude-bridge/media` | Where downloaded Telegram media lands |
+| `BRIDGE_STATE_FILE` | `state.json` beside `bridge.py` | Where session ids are persisted |
+| `LOG_LEVEL` | `INFO` | Standard Python log levels |
 
 ## Telegram commands
 

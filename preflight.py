@@ -91,12 +91,68 @@ def check_cli() -> None:
     )
 
 
-def check_credential() -> None:
-    if os.environ.get("CLAUDE_CODE_OAUTH_TOKEN"):
-        record("PASS", "Claude auth via CLAUDE_CODE_OAUTH_TOKEN")
+def check_node() -> None:
+    """The Claude Code CLI requires Node 22+.
+
+    Debian 12's `apt install nodejs` gives Node 18, which installs the CLI with
+    an EBADENGINE warning and can then fail at runtime in non-obvious ways.
+    """
+    from shutil import which
+    import subprocess
+
+    if not which("node"):
+        record("WARN", "node not found", "Only matters if you installed the CLI via npm.")
         return
-    if os.environ.get("ANTHROPIC_API_KEY"):
-        record("PASS", "Claude auth via ANTHROPIC_API_KEY")
+    try:
+        raw = subprocess.run(
+            ["node", "--version"], capture_output=True, text=True, timeout=10
+        ).stdout.strip()
+        major = int(raw.lstrip("v").split(".")[0])
+    except Exception as e:
+        record("WARN", "Could not determine node version", f"{type(e).__name__}: {e}")
+        return
+    if major >= 22:
+        record("PASS", f"node {raw}")
+    else:
+        record(
+            "FAIL",
+            f"node {raw} is too old for the Claude Code CLI",
+            "The CLI requires Node 22+. Debian's default nodejs package is 18. Install a "
+            "current Node from NodeSource:\n"
+            "         curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && apt install -y nodejs",
+        )
+
+
+def check_credential() -> None:
+    """Presence and format only.
+
+    Unlike the Telegram token, there is no cheap unauthenticated endpoint to
+    validate a Claude credential against, so this cannot prove the credential
+    works — only that something plausible is present. The first real turn is
+    the proof. Say so rather than printing a bare PASS on a placeholder.
+    """
+    oauth = os.environ.get("CLAUDE_CODE_OAUTH_TOKEN", "").strip()
+    if oauth:
+        if oauth.startswith("sk-ant-oat") and len(oauth) > 40:
+            record("PASS", "CLAUDE_CODE_OAUTH_TOKEN present (format not verified until first turn)")
+        else:
+            record(
+                "WARN",
+                "CLAUDE_CODE_OAUTH_TOKEN does not look like a real token",
+                "Expected something starting with sk-ant-oat and longer than 40 characters. "
+                "Re-run `claude setup-token` and copy the whole value.",
+            )
+        return
+    api = os.environ.get("ANTHROPIC_API_KEY", "").strip()
+    if api:
+        if api.startswith("sk-ant-") and len(api) > 40:
+            record("PASS", "ANTHROPIC_API_KEY present (not verified until first turn)")
+        else:
+            record(
+                "WARN",
+                "ANTHROPIC_API_KEY does not look like a real key",
+                "Expected something starting with sk-ant- and longer than 40 characters.",
+            )
         return
     home = os.environ.get("HOME")
     if not home:
@@ -238,6 +294,7 @@ def main() -> int:
     check_python()
     check_imports()
     check_cli()
+    check_node()
     check_credential()
     check_bot_token()
     check_allowed_users()
@@ -250,7 +307,12 @@ def main() -> int:
     if fails:
         print("  Fix the failures above, then run this again.\n")
         return 1
-    print("  Ready. Start it with:  systemctl enable --now claude-bridge\n")
+    print("  Mechanically ready. Start it with:  systemctl enable --now claude-bridge")
+    print(
+        "  This is NOT end-to-end proof. Nothing here can confirm the Claude credential\n"
+        "  works or that messages round-trip. Send your bot a message and check for a\n"
+        "  reply — that is the only real verification, and no script can do it for you.\n"
+    )
     return 0
 
 
