@@ -525,9 +525,9 @@ async def main() -> None:
                     "👋 Claude bridge ready.\n"
                     "Just type to talk. Each forum topic is its own session (tab).\n"
                     "Commands (per tab):\n"
-                    "/new — fresh session\n"
-                    "/stop — interrupt the current task\n"
-                    "/status — what's happening",
+                    "/new - fresh session\n"
+                    "/stop - interrupt the current task\n"
+                    "/status - what's happening",
                     thread_id,
                 )
             else:

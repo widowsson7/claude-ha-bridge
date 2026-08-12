@@ -2,7 +2,7 @@
 
 This file is for a coding agent (Claude Code or similar) that has been asked to
 install claude-ha-bridge on a machine. If you are a human, read
-[SETUP.md](SETUP.md) instead — it covers the same ground in a friendlier order.
+[SETUP.md](SETUP.md) instead. It covers the same ground in a friendlier order.
 
 ## What you are building
 
@@ -17,21 +17,21 @@ browser; the fifth is a decision only they can make. **Ask for all five up
 front, in one message, before you start installing.** Do not get halfway
 through and then discover you need them.
 
-1. **Telegram bot token** — the user opens Telegram, messages
+1. **Telegram bot token**: the user opens Telegram, messages
    [@BotFather](https://t.me/BotFather), sends `/newbot`, picks a name, and
    copies the token. Looks like `123456789:AAH...`.
-2. **Their numeric Telegram user ID** — from
+2. **Their numeric Telegram user ID**: from
    [@userinfobot](https://t.me/userinfobot). A number, not an @username. This is
    the entire access control model, so getting it wrong locks them out or, worse,
    lets someone else in.
-3. **Claude authentication** — one of:
+3. **Claude authentication**: one of:
    - `claude setup-token` run on the target machine (subscription), or
    - an `ANTHROPIC_API_KEY` (API billing), or
    - an interactive `claude` login on the target machine.
-4. **A Home Assistant long-lived access token** — only if they want the HA MCP
+4. **A Home Assistant long-lived access token**: only if they want the HA MCP
    server. HA → Profile → Security → Long-Lived Access Tokens. Optional; the
    bridge works without it, just with less HA awareness.
-5. **Where the agent should work** (`CLAUDE_WORKDIR`) — a git checkout of their
+5. **Where the agent should work** (`CLAUDE_WORKDIR`): a git checkout of their
    HA config is the best answer, because it makes every change the agent makes
    reviewable and revertable. If they don't have one, say so and suggest it.
    **This directory must exist before you start the service**; create it if it
@@ -86,7 +86,7 @@ mkdir -p /root/ha-config     # or wherever they chose
 ```
 
 Then write the collected values into `.env`. Note that the authentication
-block in `.env.example` ships fully commented out — you must uncomment the one
+block in `.env.example` ships fully commented out, so you must uncomment the one
 line you are using, not just paste a value next to it. Keep `chmod 600`. Never
 echo token values back into the transcript, and never commit `.env`.
 
@@ -106,7 +106,7 @@ present. A passing preflight therefore does not mean Claude will authenticate.
 The first real turn is the only proof.
 
 **Do not tell the user it works until preflight passes and they have exchanged a
-real message with the bot.** You cannot send that message yourself — it has to
+real message with the bot.** You cannot send that message yourself. It has to
 come from their Telegram account. Ask them to message the bot and report what
 came back.
 

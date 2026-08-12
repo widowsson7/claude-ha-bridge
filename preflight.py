@@ -128,7 +128,7 @@ def check_credential() -> None:
 
     Unlike the Telegram token, there is no cheap unauthenticated endpoint to
     validate a Claude credential against, so this cannot prove the credential
-    works — only that something plausible is present. The first real turn is
+    works, only that something plausible is present. The first real turn is
     the proof. Say so rather than printing a bare PASS on a placeholder.
     """
     oauth = os.environ.get("CLAUDE_CODE_OAUTH_TOKEN", "").strip()
@@ -311,7 +311,7 @@ def main() -> int:
     print(
         "  This is NOT end-to-end proof. Nothing here can confirm the Claude credential\n"
         "  works or that messages round-trip. Send your bot a message and check for a\n"
-        "  reply — that is the only real verification, and no script can do it for you.\n"
+        "  reply. That is the only real verification, and no script can do it for you.\n"
     )
     return 0
 

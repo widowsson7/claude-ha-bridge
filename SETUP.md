@@ -15,9 +15,9 @@ Anywhere you see `10.0.0.x`, a container ID, or a placeholder like `YOUR_TELEGRA
 
 **Credentials**
 
-- **Telegram bot token** — create a bot with [@BotFather](https://t.me/BotFather)
-- **Your Telegram user ID** — a number, get it from [@userinfobot](https://t.me/userinfobot)
-- **Claude auth** — a `CLAUDE_CODE_OAUTH_TOKEN` from `claude setup-token` (subscription), an `ANTHROPIC_API_KEY` (API billing), or an interactive `claude` login on the box. The SDK resolves credentials the same way the CLI does. Details in step 6.
+- **Telegram bot token**: create a bot with [@BotFather](https://t.me/BotFather)
+- **Your Telegram user ID**: a number, get it from [@userinfobot](https://t.me/userinfobot)
+- **Claude auth**: a `CLAUDE_CODE_OAUTH_TOKEN` from `claude setup-token` (subscription), an `ANTHROPIC_API_KEY` (API billing), or an interactive `claude` login on the box. The SDK resolves credentials the same way the CLI does. Details in step 6.
 - **A Home Assistant long-lived access token** if you want the HA MCP server (Profile → Security → Long-Lived Access Tokens)
 
 **Assumed knowledge**
@@ -32,7 +32,7 @@ Basic Linux and SSH, systemd units, and Python virtualenvs.
 |---|---|---|
 | CPU | 2 cores | Turns are effectively single-threaded |
 | RAM | 3 GB | ~450 MB per *live* session; idle tabs cost almost nothing |
-| Disk | 10–20 GB | venv, logs, session state, downloaded media |
+| Disk | 10-20 GB | venv, logs, session state, downloaded media |
 | Network | Static IP | Only outbound access is required |
 
 The idle reaper is what makes 3 GB workable. A tab that hasn't been used in 10 minutes drops its Claude client and keeps only its session id, so a dozen open topics cost about what one active conversation does.
@@ -77,7 +77,7 @@ apt update
 apt install -y git curl python3 python3-venv python3-pip openssh-client
 ```
 
-Now Node. **Do not use Debian's `nodejs` package** — it is version 18, and the Claude Code CLI requires 22 or newer. Installing on 18 appears to succeed while emitting an `EBADENGINE` warning, then fails later in ways that are hard to trace back:
+Now Node. **Do not use Debian's `nodejs` package**. It is version 18, and the Claude Code CLI requires 22 or newer. Installing on 18 appears to succeed while emitting an `EBADENGINE` warning, then fails later in ways that are hard to trace back:
 
 ```bash
 curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
@@ -91,7 +91,7 @@ Then the CLI itself:
 npm install -g @anthropic-ai/claude-code
 ```
 
-Worth knowing what this is and isn't for. The Agent SDK ships its own bundled copy of the CLI and will use that at runtime, not this one — you'll see `Using bundled Claude Code CLI` in the logs. You still want the global install, because `claude setup-token` and an interactive `claude` login (step 6) come from it. Node 22+ is required either way, since the bundled copy runs on your Node.
+Worth knowing what this is and isn't for. The Agent SDK ships its own bundled copy of the CLI and will use that at runtime, not this one, and you'll see `Using bundled Claude Code CLI` in the logs. You still want the global install, because `claude setup-token` and an interactive `claude` login (step 6) come from it. Node 22+ is required either way, since the bundled copy runs on your Node.
 
 ---
 
@@ -117,7 +117,7 @@ nano .env
 
 At minimum set `TELEGRAM_BOT_TOKEN`, `TELEGRAM_ALLOWED_USER_IDS`, and `CLAUDE_WORKDIR`.
 
-`CLAUDE_WORKDIR` should point at whatever you want the agent working in — a git checkout of your HA config is a good choice, because then every change the agent makes is reviewable and revertable. **The directory has to exist already**; create it now if it doesn't:
+`CLAUDE_WORKDIR` should point at whatever you want the agent working in. A git checkout of your HA config is a good choice, because then every change the agent makes is reviewable and revertable. **The directory has to exist already**; create it now if it doesn't:
 
 ```bash
 mkdir -p /root/ha-config     # or wherever you pointed CLAUDE_WORKDIR
@@ -178,7 +178,7 @@ Then write `.mcp.json` into your `CLAUDE_WORKDIR`:
 }
 ```
 
-Any other HA MCP server works too, but read its own docs for the command and environment variable names — they differ between implementations, and getting them wrong fails quietly with the tools simply absent rather than with an error.
+Any other HA MCP server works too, but read its own docs for the command and environment variable names, which differ between implementations, and getting them wrong fails quietly with the tools simply absent rather than with an error.
 
 Keep this file out of git: it holds a token that can control your house.
 
@@ -208,11 +208,11 @@ only appear or disappear after that reload.
 
 If GET returns 404 for an automation that clearly exists, it is defined in a
 package or an `!include`d file rather than in automations.yaml. This endpoint
-only manages automations.yaml — edit those as files instead.
+only manages automations.yaml, so edit those as files instead.
 
 ## Managing helpers
 Helpers (input_boolean, input_number, counter, timer, input_text, ...) live in
-.storage, NOT in YAML. Never edit those files directly — HA holds them in memory
+.storage, NOT in YAML. Never edit those files directly, because HA holds them in memory
 and will clobber your changes. Use the WebSocket API instead:
 
 - List:   {"type": "input_boolean/list"}
@@ -230,7 +230,7 @@ Use the entity registry over WebSocket, never a file edit:
  "name": "New Display Name", "new_entity_id": "<new_entity_id>"}
 
 Both fields are optional; send either or both. Note this sets a registry-level
-display-name override — a helper's own configured name is separate and will
+display-name override, and a helper's own configured name is separate and will
 still show the old value in that helper's list command.
 
 ## Dashboards
@@ -239,7 +239,7 @@ appear until Home Assistant restarts. Warn the user before doing that.
 
 ## Rules
 1. Use the config API above rather than hand-editing automations.yaml
-2. Never raw-edit anything under .storage — use the WebSocket APIs
+2. Never raw-edit anything under .storage; use the WebSocket APIs
 3. Run a config check before reloading anything
 4. Prefer a targeted reload over restarting HA core
 5. Say what you changed and why

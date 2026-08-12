@@ -7,7 +7,7 @@ Send a message from your phone, the agent inspects your HA state, edits YAML, re
 ```
 You:  the garage light didn't turn on last night, why?
 Bot:  🏃 (typing)
-Bot:  The automation fired at 21:04 but the condition blocked it — sun elevation
+Bot:  The automation fired at 21:04 but the condition blocked it: sun elevation
       was -2.1° and your condition requires below -4°. Trace shows condition 2
       returned false. Want me to loosen it to -2°?
 ```
@@ -20,20 +20,20 @@ Bot:  The automation fired at 21:04 but the condition blocked it — sun elevati
 
 ## Features
 
-- **Persistent sessions** — resumed from a saved session id, survives restarts
-- **Forum topics as tabs** — each topic in a Telegram group is an independent conversation with its own history
-- **Idle reaper** — a tab's Claude client disconnects after 10 minutes idle and reconnects transparently on the next message, so idle tabs cost almost no RAM
-- **Turn cap** — at most N tabs run a Claude turn at once; the rest queue and say so
-- **Media** — photos, documents, and voice messages are downloaded locally and handed to the agent as a file path, so it can actually look at them
-- **Allowlist auth** — only the Telegram user IDs you list are ever dispatched to Claude
-- **MCP inheritance** — picks up the Home Assistant MCP servers already configured for Claude Code on that machine
-- **Real write access** — with the standing instructions from [SETUP.md](SETUP.md), the agent creates, edits and deletes automations (REST config API) and helpers, and renames entities (WebSocket APIs), rather than only calling services. Each of those was verified end to end against a live instance.
+- **Persistent sessions**: resumed from a saved session id, survives restarts
+- **Forum topics as tabs**: each topic in a Telegram group is an independent conversation with its own history
+- **Idle reaper**: a tab's Claude client disconnects after 10 minutes idle and reconnects transparently on the next message, so idle tabs cost almost no RAM
+- **Turn cap**: at most N tabs run a Claude turn at once; the rest queue and say so
+- **Media**: photos, documents, and voice messages are downloaded locally and handed to the agent as a file path, so it can actually look at them
+- **Allowlist auth**: only the Telegram user IDs you list are ever dispatched to Claude
+- **MCP inheritance**: picks up the Home Assistant MCP servers already configured for Claude Code on that machine
+- **Real write access**: with the standing instructions from [SETUP.md](SETUP.md), the agent creates, edits and deletes automations (REST config API) and helpers, and renames entities (WebSocket APIs), rather than only calling services. Each of those was verified end to end against a live instance.
 
 ## Requirements
 
 - An always-on Linux box (LXC container, VM, Raspberry Pi, whatever) that can reach Telegram, the Anthropic API, and your HA instance
 - Python 3.11+
-- Node 22+ (for the Claude Code CLI, which the Agent SDK drives). Note that Debian 12's `nodejs` package is version 18 and is **too old** — use [NodeSource](https://github.com/nodesource/distributions)
+- Node 22+ (for the Claude Code CLI, which the Agent SDK drives). Note that Debian 12's `nodejs` package is version 18 and is **too old**. Use [NodeSource](https://github.com/nodesource/distributions)
 - A Claude subscription or an Anthropic API key
 - A Telegram bot token from [@BotFather](https://t.me/BotFather)
 
@@ -59,12 +59,12 @@ Full walkthrough including container setup, MCP configuration, and SSH keys: **[
 
 You can hand this repo to Claude Code and have it do the install. [CLAUDE.md](CLAUDE.md) contains instructions written for the agent rather than for you.
 
-**Have these five things ready first** — an agent cannot obtain them, and it will stall without them:
+**Have these five things ready first**. An agent cannot obtain them, and it will stall without them:
 
 1. A **Telegram bot token** from [@BotFather](https://t.me/BotFather) (`/newbot`)
 2. Your **numeric Telegram user ID** from [@userinfobot](https://t.me/userinfobot)
 3. **Claude auth**: run `claude setup-token`, or have an `ANTHROPIC_API_KEY`
-4. **Which directory** the agent should work in — ideally a git checkout of your HA config
+4. **Which directory** the agent should work in, ideally a git checkout of your HA config
 5. Optionally, a **Home Assistant long-lived token** (Profile → Security)
 
 Then point an agent at it:
@@ -75,7 +75,7 @@ Read its CLAUDE.md first and follow it. Ask me for the credentials it lists
 before you start, and run preflight.py before telling me it works.
 ```
 
-The agent handles the install, the venv, the unit file, and verification. You supply the four secrets and send the first message — that last part needs your Telegram account, so no agent can do it for you.
+The agent handles the install, the venv, the unit file, and verification. You supply the four secrets and send the first message. That last part needs your Telegram account, so no agent can do it for you.
 
 ## Configuration
 
@@ -119,4 +119,4 @@ This gives a language model shell access to the machine running your home automa
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT. See [LICENSE](LICENSE).
